@@ -1,6 +1,6 @@
 # SkCoder: A Sketch-based Approach for Automatic Code Generation
 
-Official implementation of our ICSE 2023 paper on Automatic Code Generation. [Paper](https://arxiv.org/abs/2302.06144)
+Special thank to [official implementation](https://github.com/LJ2lijia/SkCoder) of our ICSE 2023 paper on Automatic Code Generation. [Paper](https://arxiv.org/abs/2302.06144)
 
 ## Table of Contents
 
