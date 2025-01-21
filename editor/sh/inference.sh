@@ -1,6 +1,6 @@
-ROOT_DIR="/home/xxx/SkCoder"
+ROOT_DIR="F:/Amir_DSSW/SkCoderPlus"
 WORKDIR=${ROOT_DIR}/editor
-export PYTHONPATH=$WORKDIR
+export PYTHONPATH=$ROOT_DIR
 
 TASK=${1}
 SUB_TASK=${2}
@@ -14,7 +14,8 @@ TRG_LEN=${9}
 PATIENCE=${10}
 EPOCH=${11}
 WARMUP=${12}
-MODEL_DIR=${13}
+MODEL_DIR=${WORKDIR}"/sh/saved_models"
+# MODEL_DIR=${13}
 SUMMARY_DIR=${14}
 RES_FN=${15}
 GRAD_STEP=${16}
@@ -38,10 +39,11 @@ MODEL_TYPE=codet5
 TOKENIZER=Salesforce/codet5-base
 MODEL_PATH=Salesforce/codet5-base
 RUN_FN=${WORKDIR}/run_gen.py
+PYTHONENV=C:/Users/user01/miniconda3/envs/sk/python
 
 
 CUDA_VISIBLE_DEVICES=${GPU} \
-  python ${RUN_FN}  ${MULTI_TASK_AUG}   \
+  ${PYTHONENV} ${RUN_FN}  ${MULTI_TASK_AUG}   \
   --do_test \
   --task ${TASK} --sub_task ${SUB_TASK} --model_type ${MODEL_TYPE} --data_num ${DATA_NUM}  \
   --num_train_epochs ${EPOCH} --warmup_steps ${WARMUP} --learning_rate ${LR}e-5 --patience ${PATIENCE} \

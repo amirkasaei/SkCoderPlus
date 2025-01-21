@@ -5,17 +5,20 @@
 # -*- coding:utf-8 -*-
 import argparse
 import os
-from evaluator.CodeBLEU import bleu, weighted_ngram_match, syntax_match, dataflow_match
+from CodeBLEU import bleu, weighted_ngram_match, syntax_match, dataflow_match
 
 
 def get_codebleu(refs, hyp, lang, params='0.25,0.25,0.25,0.25'):
     if not isinstance(refs, list):
         refs = [refs]
+   
     alpha, beta, gamma, theta = [float(x) for x in params.split(',')]
 
     # preprocess inputs
-    pre_references = [[x.strip() for x in open(file, 'r', encoding='utf-8').readlines()] for file in refs]
-    hypothesis = [x.strip() for x in open(hyp, 'r', encoding='utf-8').readlines()]
+    #pre_references = [[x.strip() for x in open(file, 'r', encoding='utf-8').readlines()] for file in refs]
+    pre_references = refs
+    #hypothesis = [x.strip() for x in open(hyp, 'r', encoding='utf-8').readlines()]
+    hypothesis = hyp
 
     for i in range(len(pre_references)):
         assert len(hypothesis) == len(pre_references[i])

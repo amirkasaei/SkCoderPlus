@@ -1,10 +1,10 @@
 import json
 import nltk
 from CodeBLEU import calc_code_bleu
-from bleu_score import compute_bleu
+from bleu import compute_bleu
 import fire
 
-work_dir = "/home/xxx/SkCoder/editor/sh/saved_models"
+work_dir = "F:\Amir_DSSW\SkCoderPlus\editor\sh\saved_models"
 
 def main(input_file, lang):
     em, total_num = 0, 0
@@ -25,7 +25,7 @@ def main(input_file, lang):
             total_num += 1
             predictions.append(pred)
             references.append(refer)
-
+    
     codebleu = calc_code_bleu.get_codebleu([references], predictions, lang)
 
     print('EM: {0}, BLEU: {1}, CodeBLEU: {2}'.format(em / total_num, bleu / total_num, codebleu))

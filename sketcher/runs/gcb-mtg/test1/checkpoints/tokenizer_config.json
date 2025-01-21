@@ -1,0 +1,65 @@
+{
+  "add_prefix_space": true,
+  "bos_token": {
+    "__type": "AddedToken",
+    "content": "<s>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "cls_token": {
+    "__type": "AddedToken",
+    "content": "<s>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "eos_token": {
+    "__type": "AddedToken",
+    "content": "</s>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "errors": "replace",
+  "mask_token": {
+    "__type": "AddedToken",
+    "content": "<mask>",
+    "lstrip": true,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "model_max_length": 512,
+  "name_or_path": "microsoft/graphcodebert-base",
+  "pad_token": {
+    "__type": "AddedToken",
+    "content": "<pad>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "sep_token": {
+    "__type": "AddedToken",
+    "content": "</s>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  },
+  "special_tokens_map_file": "runs/cache/models--microsoft--graphcodebert-base/snapshots/2b0488a7bb0eefc7041f1bb2cad1ab26b0da269d/special_tokens_map.json",
+  "tokenizer_class": "RobertaTokenizer",
+  "trim_offsets": true,
+  "unk_token": {
+    "__type": "AddedToken",
+    "content": "<unk>",
+    "lstrip": false,
+    "normalized": true,
+    "rstrip": false,
+    "single_word": false
+  }
+}

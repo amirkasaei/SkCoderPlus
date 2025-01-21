@@ -1,15 +1,15 @@
 # Copyright (c) Microsoft Corporation. 
 # Licensed under the MIT license.
 
-from evaluator.CodeBLEU.parser import DFG_python, DFG_java, DFG_ruby, DFG_go, DFG_php, DFG_javascript, DFG_csharp
-from evaluator.CodeBLEU.parser import (remove_comments_and_docstrings,
+from CodeBLEU.parser import DFG_python, DFG_java, DFG_ruby, DFG_go, DFG_php, DFG_javascript, DFG_csharp
+from CodeBLEU.parser import (remove_comments_and_docstrings,
                                        tree_to_token_index,
                                        index_to_code_token,
                                        tree_to_variable_index)
 from tree_sitter import Language, Parser
 import os
 
-root_dir = os.path.dirname(__file__)
+root_dir = 'F:\Amir_DSSW\SkCoderPlus\evaluator\CodeBLEU'#os.path.dirname(__file__)
 dfg_function = {
     'python': DFG_python,
     'java': DFG_java,

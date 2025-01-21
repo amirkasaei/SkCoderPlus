@@ -20,6 +20,15 @@ using a masked language modeling (MLM) loss.
 """
 
 import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+import torch
+
+#print("CUDA_VISIBLE_DEVICES:", os.environ.get("CUDA_VISIBLE_DEVICES"))
+#print("Is CUDA available:", torch.cuda.is_available())
+#print("Number of GPUs available:", torch.cuda.device_count())
+
+
 import logging
 import argparse
 import math
@@ -29,14 +38,13 @@ import multiprocessing
 import time
 import json
 
-import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 from transformers import AdamW, get_linear_schedule_with_warmup
 from models import build_or_load_gen_model
-from evaluator import smooth_bleu
-from evaluator.CodeBLEU import calc_code_bleu
+#from evaluator import smooth_bleu
+#from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist

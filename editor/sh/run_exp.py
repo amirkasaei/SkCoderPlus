@@ -14,7 +14,7 @@ def get_cmd(task, sub_task, do_train, model_tag, gpu, data_num, bs, lr, source_l
                    warmup, model_dir, summary_dir, res_fn, grad_step)
     else:
         print('============================Start Inference==========================')
-        cmd_str = 'bash inference.sh %s %s %s %s %d %d %d %d %d %d %d %d %s %s %s %d' % \
+        cmd_str = 'bash F:/Amir_DSSW/SkCoderPlus/editor/sh/inference.sh %s %s %s %s %d %d %d %d %d %d %d %d %s %s %s %d' % \
                   (task, sub_task, model_tag, gpu, data_num, bs, lr, source_length, target_length, patience, epoch,
                    warmup, model_dir, summary_dir, res_fn, grad_step)
     return cmd_str
