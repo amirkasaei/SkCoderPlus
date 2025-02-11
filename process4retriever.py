@@ -34,8 +34,11 @@ def postprocess(data_path, example_path):
         # model = SentenceTransformer('all-MiniLM-L6-v2')
 
         # Load the CodeT5 model and tokenizer
-        checkpoint = "Salesforce/codet5p-110m-embedding"
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint, trust_remote_code=True)
+        # checkpoint = "Salesforce/codet5-base"
+        # checkpoint = "Salesforce/codet5p-110m-embedding"
+        checkpoint_tokenizer = "Salesforce/codet5p-110m-embedding"
+        checkpoint = "Salesforce/codet5-base-codexglue-sum-python"
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint_tokenizer, trust_remote_code=True)
         model = AutoModel.from_pretrained(checkpoint, trust_remote_code=True)
 
         def encode_text(text):
