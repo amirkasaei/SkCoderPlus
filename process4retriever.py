@@ -34,8 +34,9 @@ def postprocess(data_path, example_path):
         # model = SentenceTransformer('all-MiniLM-L6-v2')
 
         # Load the CodeT5 model and tokenizer
-        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-base")
-        model = AutoModel.from_pretrained("Salesforce/codet5-base")
+        checkpoint = "Salesforce/codet5p-110m-embedding"
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint, trust_remote_code=True)
+        model = AutoModel.from_pretrained(checkpoint, trust_remote_code=True)
 
         def encode_text(text):
             """Encode text using CodeT5."""
@@ -60,18 +61,18 @@ def postprocess(data_path, example_path):
                 print(f'process {i}')
 
                 similarity_score = []
-                sample_embedding = embeddings[i]
-                sample_embedding = sample_embedding[0, 0, :]
+                sample_embedding = torch.mean(embeddings[i], dim=1)
+                # sample_embedding = sample_embedding[0, 0, :]
                 for j, _ in enumerate(data):
                     if i == j:
                         similarity_score.append(-1 * np.inf)
                     else:
-                        other_embedding = embeddings[j]
-                        other_embedding = other_embedding[0, 0, :]
+                        other_embedding = torch.mean(embeddings[j], dim=1)
+                        # other_embedding = other_embedding[0, 0, :]
 
                         similarity = torch.nn.functional.cosine_similarity(
-                            sample_embedding.unsqueeze(0),  # Add batch dimension
-                            other_embedding.unsqueeze(0),
+                            sample_embedding,  # Add batch dimension
+                            other_embedding,
                             dim=1)
                         similarity_score.append(similarity)
                 top_similarity_idx = top_n_max_indices(similarity_score, len(data))
