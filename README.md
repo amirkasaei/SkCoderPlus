@@ -27,7 +27,7 @@ Official implementation of our ICSE 2023 paper on Automatic Code Generation. [Pa
 
 In this paper, we conduct experiments on three datasets, including `HearthStone`, `Magic`, and `AixBench-L`. The raw datasets are available at [Google Drive](https://drive.google.com/drive/folders/1p04arpnmGT_QdeG_v5I-OkGj517wHXGI?usp=drive_link).
 
-Please download the datasets and put them in the `data` folder. Taking the `HearthStone` dataset as an example, the folder structure should be like this:
+Please download the datasets and put them in the `data` folder. Taking the `HearthStone` dataset, the folder structure should be like this:
 
 ```
 data
@@ -52,10 +52,10 @@ Each line of these `jsonl` files is a json object, which contains the following 
 
 ### Step 1: Runing the Retriever
 
-The retriever is used to retrieve the most similar code snippets from the code corpus. We also provide the retrieval results for the three datasets, which can be downloaded from [Google Drive](https://drive.google.com/drive/folders/1p04arpnmGT_QdeG_v5I-OkGj517wHXGI?usp=drive_link). You can skip this step if you want to use the retrieval results directly.
+The retriever is used to retrieve the most similar code snippets from the code corpus. We have replaced the papers default retriver with the [CodeT5 embedding model](https://huggingface.co/Salesforce/codet5p-110m-embedding). This change improves retrieval accuracy and helps better capture semantic relationships between input queries and code snippets.
 
 
-We run the retriever on the `HearthStone` dataset as an example.
+We run the retriever on the `HearthStone` dataset.
 First, we extract input requirements from datasets and save them as files (`train.in`, `dev.in`, `test.in`).
 
 ```Bash
@@ -84,9 +84,7 @@ Each file contains the following keys:
 
 ### Step 2: Training the Sketcher
 
-As an example, we show the preprocessing, training and inference process of HearthStone dataset.
-
-There are some details that are different for each dataset, but mostly the steps are the same. We will add the details later.
+After replacing the retriever with CodeT5, we further trained the model using the improved retrieval outputs. This helps refine the generated sketches and improves overall model performance.
 
 As a disclaimer, the term `gcb` appearing everywhere stands for GraphCodeBert, which we use as a base model for fine-tuning.
 It is here because there was a version that trains the model from scratch, so the term gcb is thus used to distinguish them.
@@ -128,7 +126,7 @@ Finally, the sketcher outputs `{train,dev,test}_with_sketch.jsonl` in `data/hear
 
 ### Step 3: Training the Editor
 
-The editor is train to generate code based on the requirement and code sketch. We run the editor on the `HearthStone` dataset as an example.
+The editor is train to generate code based on the requirement and code sketch. We run the editor on the `HearthStone` dataset.
 
 #### Data Preprocessing
 We run `process2editor.py` to generate the training data for the editor.
@@ -150,7 +148,7 @@ Where `gpu_ids` is the GPU(s) you want to use to train, such as `0,1`.
 `run_exp.py` will automatically train the model and generate the code for the test data. The generated code is saved in `editor/sh/saved_models/hearthstone/prediction/test_best-bleu.jsonl`. 
 
 ### Step 4: Evaluation
-We evaluate the generated code using three metrics, including Exact Match (EM), BLEU, and CodeBLEU. We run the evaluation on the `HearthStone` dataset as an example.
+We evaluate the generated code using three metrics, including Exact Match (EM), BLEU, and CodeBLEU. We run the evaluation on the `HearthStone` dataset.
 
 ```Bash
 cd evaluator
@@ -160,9 +158,14 @@ python evaluate.py --input_file {prediction_path} --lang {lang}
 Where `prediction_path` is the path of the generated code, such as `../editor/sh/saved_models/hearthstone/prediction/test_best-bleu.jsonl`.
 `lang` is the programming language of the generated code (`Hearthstone`: `python`, `Magic` and `AixBench-L`: `java`).
 
+### Improvements with CodeT5 Embeddings
+By replacing the original retriever with CodeT5 embeddings, we achieved the following improvements:
+- More accurate retrieval of relevant code snippets, leading to better initial sketches
+- Enhanced training quality by fine-tuning on the improved retrieval outputs
+- Better performance across `Hearthstone` datasets in terms of BLEU and CodeBLEU scores
 
 ## Releasing a trained model
-To facilitate the research community, we release the trained checkpoints of the sketcher and editor. The models are available at Google Drive([Sketcher](https://drive.google.com/drive/folders/1Vo48FC-pfX3FJwJihef6w2KWW-vjnu9B?usp=drive_link), [Editor](https://drive.google.com/drive/folders/17irATOV2xvle7Dq20-qydQDtV49PaG3C?usp=drive_link)). Please download the models and put them in the corresponding folders. Take the HearthStone dataset as an example, the folder structure is as follows:
+To facilitate the research community, we release the trained checkpoints of the sketcher and editor. The models are available at Google Drive([Sketcher](https://drive.google.com/drive/folders/1Vo48FC-pfX3FJwJihef6w2KWW-vjnu9B?usp=drive_link), [Editor](https://drive.google.com/drive/folders/17irATOV2xvle7Dq20-qydQDtV49PaG3C?usp=drive_link)). Please download the models and put them in the corresponding folders. Take the HearthStone dataset, the folder structure is as follows:
 
 ```
 sketcher

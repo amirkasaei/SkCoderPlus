@@ -1,7 +1,10 @@
 import json
-import fire
-
-
+import numpy as np
+from transformers import AutoTokenizer, AutoModel
+import torch
+def top_n_max_indices(lst, n):
+    # Get the indices of the top n elements
+    return sorted(range(len(lst)), key=lambda i: lst[i], reverse=True)[:n]
 def preprocess(data_path):
     for prefix in ['train', 'dev', 'test']:
         with open(f'{data_path}/{prefix}.jsonl', 'r') as f_r, open(f'{data_path}/{prefix}.in', 'w') as f_w:
@@ -11,42 +14,85 @@ def preprocess(data_path):
 
 
 def postprocess(data_path, example_path):
-    retrieval_corpus = []
-    with open(f'{data_path}/train.jsonl', 'r') as f:
-        for line in f:
-            sample = json.loads(line.strip())
-            retrieval_corpus.append(sample)
-
     for prefix in ['train', 'dev', 'test']:
-        with open(f'{example_path}/{prefix}.example', 'r') as f_ex, open(f'{data_path}/{prefix}.jsonl', 'r') as f_data:
-            with open(f'{data_path}/{prefix}_with_example.jsonl', 'w') as f_w:
-                f_ex = f_ex.readlines()
-                f_data = f_data.readlines()
-                assert len(f_ex) == len(f_data)
-                for line_ex, line_data in zip(f_ex, f_data):
-                    example_ids = line_ex.strip().split()
-                    sample = json.loads(line_data.strip())
-                    target_code = ' '.join(sample['output_tokens'])
-                    examples = []
-                    for idx in example_ids:
-                        retrieved_code = retrieval_corpus[int(idx)]['output_tokens']
-                        retrieved_code = ' '.join(retrieved_code)
-                        if retrieved_code == target_code: # remove target code
-                            continue
-                        elif len(examples) >= 5: # only keep top-5 examples
+        print(f"processing {prefix}")
+        retrieval_corpus = []
+        with open(f'{data_path}/{prefix}.jsonl', 'r') as f:
+            for line in f:
+                sample = json.loads(line.strip())
+                retrieval_corpus.append(sample)
+
+        data = []
+        with open(f'{data_path}/{prefix}.jsonl', 'r') as raw_data:
+
+            raw_data = raw_data.readlines()
+
+            for line in raw_data:
+                sample = json.loads(line.strip())
+                data.append(sample)
+
+        # model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        # Load the CodeT5 model and tokenizer
+        # checkpoint = "Salesforce/codet5-base"
+        # checkpoint = "Salesforce/codet5p-110m-embedding"
+        checkpoint_tokenizer = "Salesforce/codet5p-110m-embedding"
+        checkpoint = "Salesforce/codet5-base-codexglue-sum-python"
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint_tokenizer, trust_remote_code=True)
+        model = AutoModel.from_pretrained(checkpoint, trust_remote_code=True)
+
+        def encode_text(text):
+            """Encode text using CodeT5."""
+
+            inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+
+            # print(inputs)
+            with torch.no_grad():
+                outputs = model.encoder(**inputs)
+                # Use the [CLS] token embedding (or equivalent depending on the architecture)
+                return outputs.last_hidden_state
+        embeddings = []
+
+        for i, other in enumerate(data):
+            other_input = other['input']
+            # other_input_tokens = ' '.join(other_input_tokens)
+            other_embedding = encode_text(other_input)
+            embeddings.append(other_embedding)
+
+        with open(f'{data_path}/{prefix}_with_example.jsonl', 'w') as output:
+            for i, sample in enumerate(data):
+                print(f'process {i}')
+
+                similarity_score = []
+                sample_embedding = torch.mean(embeddings[i], dim=1)
+                # sample_embedding = sample_embedding[0, 0, :]
+                for j, _ in enumerate(data):
+                    if i == j:
+                        similarity_score.append(-1 * np.inf)
+                    else:
+                        other_embedding = torch.mean(embeddings[j], dim=1)
+                        # other_embedding = other_embedding[0, 0, :]
+
+                        similarity = torch.nn.functional.cosine_similarity(
+                            sample_embedding,  # Add batch dimension
+                            other_embedding,
+                            dim=1)
+                        similarity_score.append(similarity)
+                top_similarity_idx = top_n_max_indices(similarity_score, len(data))
+                similar_samples = []
+                target_code = ' '.join(sample['output_tokens'])
+
+                for idx in top_similarity_idx:
+                    retrieved_code = data[idx]['output_tokens']
+                    retrieved_code = ' '.join(retrieved_code)
+                    if retrieved_code == target_code:  # remove target code
+                        continue
+                    else:
+                        similar_samples.append(retrieved_code)
+                        if len(similar_samples) == 5:
                             break
-                        else:
-                            examples.append(retrieved_code)            
-                    sample['examples'] = examples
-                    f_w.write(json.dumps(sample)+'\n')
-
-
-def main(type="", data_path="", example_path=""):
-    if type == 'preprocess':
-        preprocess(data_path)
-    elif type == 'postprocess':
-        postprocess(data_path, example_path)
-
+                sample['examples'] = similar_samples
+                output.write(json.dumps(sample) + '\n')
 
 if __name__ == '__main__':
-    fire.Fire(main)
+    postprocess('data/hearthstone', '-')
